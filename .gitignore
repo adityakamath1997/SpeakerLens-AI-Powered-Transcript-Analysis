@@ -1,26 +1,7 @@
-# Ignore virtual environment folder
 venv/
-
-# Ignore environment and API key files
 .env
-
-# Ignore temporary or cache files
-__pycache__/
-*.py[cod]
-*.log
-
-# Ignore data files
-data/raw/
-data/processed/
-
-# Ignore Jupyter Notebook checkpoints 
-.ipynb_checkpoints/
-
-# Ignore macOS system files
 .DS_Store
-
-# Ignore VSCode project-specific files
-.vscode/
-
-# Ignore compiled bytecode
+__pycache__/
 *.pyc
+.vscode/
+*.log
