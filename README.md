@@ -51,6 +51,7 @@ This project began as a passion project over a weekend, driven by my fascination
    streamlit run app.py
    ```
    - Upload an MP3 file to start processing. The app will transcribe, analyze, and visualize the audio insights.
+   - A sample meeting audio file with multiple speakers is included in the samples folder to help you quickly test out the app’s features. Just upload the sample file and see the app in action. Alternatively, feel free to download and use any other audio file of your choice.
 
 ## 📁 Directory Structure
 
