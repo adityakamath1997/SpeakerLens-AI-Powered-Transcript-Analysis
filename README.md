@@ -5,7 +5,7 @@ This project began as a passion project over a weekend, driven by my fascination
 
 ## ✨ App Demo
 
-Here’s a glimpse of the app in action:
+For the sake of demonstration, I've chosen an audio clip extracted from the video of a staff meeting with multiple speakers on YouTube :(https://www.youtube.com/watch?v=oPhKhTI0Lss).
 
 *Upload an audio file of your choice:*
 
@@ -121,6 +121,6 @@ There’s a lot more I intend to do with this project! Here a few features I pla
 
 ## 💡 Inspiration and Learning Goals
 
-The initial idea for this project came up during a capstone project meeting. I wanted a way to keep track of what everyone was saying — a tool to help summarize and analyze each speaker's points without a point! I thought it would be cool if I could separate out what everyone was saying and highlight everyones key points(What I later found out was called speech diarization). The project combines skills in NLP, audio processing, and data visualization, creating a platform that could be a starting point for various use cases, such as podcast analysis, meeting summaries, and a lot more.
+The initial idea for this project came up during a capstone project meeting. I wanted a way to keep track of what everyone was saying — a tool to help summarize and analyze each speaker's points with no effort at all! I thought it would be cool if I could separate out what everyone was saying and highlight everyones key points(What I later found out was called speech diarization). The project combines skills in NLP, audio processing, and data visualization, creating a platform that could be a starting point for various use cases, such as podcast analysis, meeting summaries, and a lot more.
 
 
