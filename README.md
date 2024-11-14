@@ -94,13 +94,14 @@ For the sake of demonstration, I've chosen an audio clip extracted from the vide
 Here’s an overview of the main directories and files in this project:
 
 ```plaintext
-audio-analysis-project/
+speech-diarization/
 ├── app.py                  # Main Streamlit application
 ├── src/
 │   ├── assemblyai_processing.py  # Backend code for handling AssemblyAI requests
 │   └── ...                # Additional modules as needed
-├── data/
-│   └── raw/               # Stores uploaded audio files
+├── data/                  # Stores uploaded audio files
+│   └── raw/
+├── images/                # Images
 ├── requirements.txt       # List of dependencies
 └── README.md              # Project documentation
 ```
