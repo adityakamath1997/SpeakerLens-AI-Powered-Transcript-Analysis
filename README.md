@@ -3,6 +3,42 @@
 
 This project began as a passion project over a weekend, driven by my fascination with speech diarization and audio analysis. It’s designed to capture, analyze, and visualize spoken content, making it accessible and insightful. This tool combines elements of data analysis and visualization to help make sense of audio data, from identifying speakers to extracting keywords and analyzing sentiment. And there’s so much more I plan to add as it evolves!
 
+## ✨ App Demo
+
+Here’s a glimpse of the app in action:
+
+*Upload an audio file of your choice:*
+
+![File Upload Section](images/demo1.png)
+
+*Entire transcript of the audio file, followed by speaker wise transcripts:*
+
+![Entire Transcript](images/demo2.png)
+
+
+![Speaker wise Transcripts](images/demo3.png)
+
+*Visualization of speaking duration of all speakers:*
+
+![Bar Chart](images/demo4.png)
+
+*Overall keyword analysis, followed by speaker wise keyword analysis:*
+
+![Overall keywords](images/demo5.png)
+
+![Speaker wise keywords](images/demo6.png)
+
+*Summary of the transcript:*
+
+![Summary](images/demo7.png)
+
+*List of relevant entities:*
+
+![Entities](images/demo8.png)
+
+*Sentiment analysis summary, most relevant topics, and sensitive content check:*
+
+![Misc](images/demo9.png)
 
 ## ✨ Key Features
 
