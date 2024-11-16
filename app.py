@@ -2,7 +2,8 @@
 import os
 import streamlit as st
 import matplotlib.pyplot as plt
-from collections import Counter
+from collections import Counter,defaultdict
+from wordcloud import WordCloud
 import nltk
 from nltk.corpus import stopwords
 from src.assemblyai_processing import get_audio_intelligence
@@ -112,61 +113,86 @@ if uploaded_file is not None:
                 unsafe_allow_html=True
             )
 
-        # Speaker duration chart for visual comparison of speaking times
-        st.subheader("🔊 Speaking Duration per Speaker")
-        speaker_names = list(speakers.keys())
-        durations = [data["duration"] / 1000 for data in speakers.values()]  # Convert ms to seconds
-        fig, ax = plt.subplots()
-        ax.barh(speaker_names, durations, color=[speaker_colors[name] for name in speaker_names])
-        ax.set_xlabel("Duration (seconds)")
-        ax.set_title("Speaking Duration per Speaker")
-        st.pyplot(fig)
+        st.header("📊 Visualizations")
+        visualization_tabs = st.tabs([
+            "Bar Chart: Total Words",
+            "Bar Chart: Words per Speaker",
+            "Word Cloud: Total Words",
+            "Word Cloud: Words per Speaker"
+        ])
 
-        # Keyword Analysis for overall transcript and speaker specific keywords
-        st.header("🗣️ Keyword Analysis")
-        
-        # Keywords across all speakers
-        all_text = " ".join(data["text"] for data in speakers.values())
-        overall_keywords = extract_keywords(all_text)
-        most_common_keywords = overall_keywords.most_common(10)
-
-        # Show bar chart of common keywords
-        st.subheader("Most Common Keywords (Overall)")
-        keywords, counts = zip(*most_common_keywords)
-        fig, ax = plt.subplots()
-        ax.barh(keywords, counts, color="#88B04B")
-        ax.set_xlabel("Frequency")
-        st.pyplot(fig)
-
-        # Individual keyword breakdown per speaker
-        st.subheader("Speaker-Specific Keywords")
-        for speaker, data in speakers.items():
-            st.write(f"**{speaker}**")
-            speaker_keywords = extract_keywords(data["text"])
-            common_keywords = speaker_keywords.most_common(5)
-
-            if common_keywords:
-                keywords, counts = zip(*common_keywords)
+        # Tab 1: Bar Chart of Total Words
+        with visualization_tabs[0]:
+            st.subheader("Bar Chart of Most Common Words (Total)")
+            all_text = " ".join(data["text"] for data in speakers.values())
+            overall_keywords = extract_keywords(all_text)
+            most_common_keywords = overall_keywords.most_common(10)
+            if most_common_keywords:
+                keywords, counts = zip(*most_common_keywords)
                 fig, ax = plt.subplots()
-                ax.barh(keywords, counts, color=speaker_colors[speaker])
+                ax.barh(keywords, counts, color="#88B04B")
                 ax.set_xlabel("Frequency")
-                ax.set_title(f"Top Keywords for {speaker}")
+                ax.set_title("Most Common Words (Total)")
                 st.pyplot(fig)
             else:
                 st.write("No significant keywords found.")
+
+        # Tab 2: Bar Chart of Words per Speaker
+        with visualization_tabs[1]:
+            st.subheader("Bar Chart of Most Common Words (Per Speaker)")
+            for speaker, data in speakers.items():
+                st.write(f"**{speaker}**")
+                speaker_keywords = extract_keywords(data["text"])
+                common_keywords = speaker_keywords.most_common(5)
+                if common_keywords:
+                    keywords, counts = zip(*common_keywords)
+                    fig, ax = plt.subplots()
+                    ax.barh(keywords, counts, color=SPEAKER_COLORS[list(speakers.keys()).index(speaker) % len(SPEAKER_COLORS)])
+                    ax.set_xlabel("Frequency")
+                    ax.set_title(f"Top Keywords for {speaker}")
+                    st.pyplot(fig)
+                else:
+                    st.write("No significant keywords found for this speaker.")
+
+        # Tab 3: Word Cloud of Total Words
+        with visualization_tabs[2]:
+            st.subheader("Word Cloud of Most Frequent Non-Common Words (Total)")
+            wordcloud_text = " ".join([word for word in transcription.split() if word.lower() not in STOP_WORDS])
+            wordcloud = WordCloud(width=800, height=400, background_color="black", colormap="Pastel1").generate(wordcloud_text)
+            plt.figure(figsize=(10, 5))
+            plt.imshow(wordcloud, interpolation="bilinear")
+            plt.axis("off")
+            st.pyplot(plt)
+
+        # Tab 4: Word Cloud of Words per Speaker
+        with visualization_tabs[3]:
+            st.subheader("Word Cloud of Most Frequent Non-Common Words (Per Speaker)")
+            for speaker, data in speakers.items():
+                st.write(f"**{speaker}**")
+                speaker_wordcloud_text = " ".join([word for word in data["text"].split() if word.lower() not in STOP_WORDS])
+                if speaker_wordcloud_text:
+                    speaker_wordcloud = WordCloud(width=800, height=400, background_color=SPEAKER_COLORS[list(speakers.keys()).index(speaker) % len(SPEAKER_COLORS)], colormap="Pastel1").generate(speaker_wordcloud_text)
+                    plt.figure(figsize=(10, 5))
+                    plt.imshow(speaker_wordcloud, interpolation="bilinear")
+                    plt.axis("off")
+                    st.pyplot(plt)
+                else:
+                    st.write("No significant keywords for this speaker.")
 
         # Summary of the audio content
         st.header("📝 Summary")
         st.markdown(f"<div class='box'>{summary}</div>", unsafe_allow_html=True)
 
-        # Display entities detected in the audio(WIP, I intend to make this more concise)
-        st.header("🔍 Unique Entities Detected")
-        unique_entities = {entity["text"]: entity["entity_type"] for entity in entities}
-        if unique_entities:
-            for entity, entity_type in unique_entities.items():
-                st.markdown(f"<div class='box'>Entity: <b>{entity_type}</b>, Value: <b>{entity}</b></div>", unsafe_allow_html=True)
-        else:
-            st.write("No unique entities detected.")
+         # Entities Grouped by Category with Dropdowns
+        st.header("🔍 Unique Entities Detected (Grouped by Category)")
+        grouped_entities = defaultdict(list)
+        for entity in entities:
+            grouped_entities[entity["entity_type"]].append(entity["text"])
+        
+        for category, items in grouped_entities.items():
+            with st.expander(f"{category.capitalize()} (Click to expand)"):
+                unique_items = list(set(items))  # Remove duplicates
+                st.write(", ".join(unique_items))
 
         # Summary of sentiment analysis(WIP)
         st.header("💬 Sentiment Analysis Overview")

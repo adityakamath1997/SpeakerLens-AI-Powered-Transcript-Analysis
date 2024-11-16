@@ -6,3 +6,4 @@ matplotlib
 wordcloud
 nltk
 requests
+assemblyai
