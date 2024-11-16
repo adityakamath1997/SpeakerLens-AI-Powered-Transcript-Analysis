@@ -8,6 +8,42 @@ import nltk
 from nltk.corpus import stopwords
 from src.assemblyai_processing import get_audio_intelligence
 
+# Set Streamlit Page Configuration
+st.set_page_config(
+    page_title="Audio Insights Hub",  # Title that appears on the browser tab
+    page_icon="🎙️",  # Favicon
+    layout="centered",  # Use wide layout
+    initial_sidebar_state="expanded"
+)
+
+# Display App Title Bar Information
+st.markdown(
+    """
+    <style>
+        .title-bar {
+            font-size: 16px;
+            color: #d3d3d3;
+            text-align: center;
+            margin-top: -20px;
+            padding-bottom: 10px;
+        }
+        .title-bar a {
+            color: #92A8D1;
+            text-decoration: none;
+        }
+        .title-bar a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <div class="title-bar">
+        Made with ❤️ <a href="https://github.com/adityakamath1997" target="_blank">Aditya Kamath</a> | 
+        <a href="https://github.com/adityakamath1997/Speech-Diarization-Project" target="_blank">GitHub Repository</a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
 # Using NLTK's stop words in this case. This could  be replaced with acustom list of stop words if desired.
 nltk.download("stopwords")
 STOP_WORDS = set(stopwords.words("english"))
@@ -16,6 +52,7 @@ STOP_WORDS = set(stopwords.words("english"))
 SPEAKER_COLORS = [
     "#FF6F61", "#6B5B95", "#88B04B", "#F7CAC9", "#92A8D1", "#955251", "#B565A7", "#009B77"
 ]
+
 
 # The default duration is in milliseconds, hence format durations from milliseconds to a "minutes:seconds" or "hours:minutes:seconds" style
 def format_duration(milliseconds):
