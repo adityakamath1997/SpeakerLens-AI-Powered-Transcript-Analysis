@@ -6,7 +6,7 @@ The tool combines my interests in data visualization and audio processing to cre
 
 ## ✨ App Demo
 
-For the sake of demonstration, I've chosen an audio clip extracted from the video of a staff meeting with multiple speakers on YouTube :(https://www.youtube.com/watch?v=oPhKhTI0Lss).
+For the sake of demonstration, I've chosen an audio clip extracted from the video of a staff meeting with multiple speakers on [YouTube](https://www.youtube.com/watch?v=oPhKhTI0Lss).
 
 *Upload an audio file of your choice:*
 
@@ -14,32 +14,22 @@ For the sake of demonstration, I've chosen an audio clip extracted from the vide
 
 *Entire transcript of the audio file, followed by speaker wise transcripts:*
 
-![Entire Transcript](images/demo2.png)
+![Entire Transcript](images/f1.gif)
 
 
-![Speaker wise Transcripts](images/demo3.png)
+![Speaker wise Transcripts](images/f2.gif)
 
-*Visualization of speaking duration of all speakers:*
+*Visualization of speaking stats of all speakers:*
 
-![Bar Chart](images/demo4.png)
+![Bar Chart](images/f3.gif)
 
-*Overall keyword analysis, followed by speaker wise keyword analysis:*
+*Analytics of conversation flow:*
 
-![Overall keywords](images/demo5.png)
+![Further Analytics](images/f4.gif)
 
-![Speaker wise keywords](images/demo6.png)
+*Summary of the transcript, relevant entites, sentiment analysis, and sensitive content check:*
 
-*Summary of the transcript:*
-
-![Summary](images/demo7.png)
-
-*List of relevant entities:*
-
-![Entities](images/demo8.png)
-
-*Sentiment analysis summary, most relevant topics, and sensitive content check:*
-
-![Misc](images/demo9.png)
+![Misc Analytics](images/f5.gif)
 
 ## 🎯 Business Value & Market Differentiation
 
@@ -166,8 +156,8 @@ This structure ensures maintainability and makes it easy to add new features or 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/audio-analysis-project.git
-   cd audio-analysis-project
+   git clone https://github.com/adityakamath1997/Speech-Diarization-Project.git
+   cd Speech-Diarization-Project
    ```
 
 2. **Set up a virtual environment**:
@@ -191,27 +181,45 @@ This structure ensures maintainability and makes it easy to add new features or 
    ```bash
    streamlit run app.py
    ```
-   - Upload an MP3 file to start processing. The app will transcribe, analyze, and visualize the audio insights.
-   - A sample meeting audio file with multiple speakers is included in the samples folder to help you quickly test out the app’s features. Just upload the sample file and see the app in action. Alternatively, feel free to download and use any other audio file of your choice.
+
+   Once the application starts:
+   1. Open your browser to the displayed URL (typically http://localhost:8501)
+   2. Upload an MP3 file using the file uploader
+   3. Wait for the processing to complete (you'll see a progress bar)
+   4. Explore the analysis through different tabs:
+      - View the full and speaker-wise transcripts
+      - Analyze speaker participation metrics
+      - Explore keyword distributions
+      - Check sentiment analysis results
+      - Review detected entities and topics
+
+   **Note**: A sample meeting audio file with multiple speakers is included in the `samples` folder for testing. You can:
+   - Use this sample file to quickly test the app's features
+   - Or upload any MP3 file of your choice (recommended length: 2-15 minutes)
+   
+   **Processing Time**: Depending on the audio length, initial processing may take 1-3 minutes.
 
 ## 📁 Directory Structure
 
 Here’s an overview of the main directories and files in this project:
 
 ```plaintext
-speech-diarization/
-├── app.py                  # Main Streamlit application
+Speech-Diarization-Project/
 ├── src/
-│   ├── assemblyai_processing.py  # Backend code for handling AssemblyAI requests
-│   └── ...                # Additional modules as needed
-├── data/                  # Stores uploaded audio files
-│   └── raw/
-├── images/                # Images
-├── requirements.txt       # List of dependencies
-└── README.md              # Project documentation
+│   └── assemblyai_processing.py  # Core processing logic
+├── data/
+│   └── raw/                      # Audio file storage (gitignored)
+│       └── .gitkeep
+├── images/                       # Demo screenshots
+│   ├── demo1.png
+│   ├── demo2.png
+│   └── ...
+├── app.py                        # Main Streamlit application
+├── requirements.txt              # Project dependencies
+├── .env.example                  # Environment variables template
+├── .gitignore                   # Git ignore configuration
+└── README.md                    # Project documentation
 ```
-
-
 
 ## 💡 Learning Journey
 
