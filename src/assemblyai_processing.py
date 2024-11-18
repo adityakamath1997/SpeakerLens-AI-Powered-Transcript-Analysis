@@ -3,17 +3,18 @@ import requests
 from dotenv import load_dotenv
 import time
 
-# Load the AssemblyAI API key from environment variables
+# API key loaded from environment variables for security best practices
 load_dotenv()
 ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
 
-# Set up base URL and headers for making requests to the AssemblyAI API
+# Base URL and headers setup for AssemblyAI API requests
 ASSEMBLYAI_URL = "https://api.assemblyai.com/v2"
 HEADERS = {"authorization": ASSEMBLYAI_API_KEY}
 
 def upload_audio(file_path):
     """
-    Upload an audio file to AssemblyAI and return the URL where it's stored.
+    Handles the upload of audio filesto AssemblyAI servers and returns a URL for the stored file.
+    Includes error handling for failed uploads and logs the process for debuging purposes.
     """
     try:
         with open(file_path, "rb") as f:
@@ -29,7 +30,8 @@ def upload_audio(file_path):
 
 def transcribe_basic_audio(audio_url):
     """
-    Start a basic transcription request with just speaker labels.
+    Performs basic audio transcrpition with speaker identification. Returns a unique ID
+    that can be used to track the transcription progress.
     """
     endpoint = f"{ASSEMBLYAI_URL}/transcript"
     json_data = {
@@ -48,7 +50,9 @@ def transcribe_basic_audio(audio_url):
 
 def transcribe_audio_with_features(audio_url):
     """
-    Start a transcription request with additional features like entity detection, sentiment analysis, and summarization.
+    Enhanced transcription that includes speaker labels, entity detection, sentiment analysis,
+    and content summarization.Provides comprehensive analysis of the audio content using
+    AssemblyAI's advanced features.
     """
     endpoint = f"{ASSEMBLYAI_URL}/transcript"
     json_data = {
@@ -74,7 +78,8 @@ def transcribe_audio_with_features(audio_url):
 
 def poll_transcription_status(transcript_id):
     """
-    Continuously check the status of the transcription until it's finished.
+    Monitors the transcription progress by checking status every 5 seconds until completion.
+    Returns the final transcription data or raises an error if the process fails.
     """
     endpoint = f"{ASSEMBLYAI_URL}/transcript/{transcript_id}"
     while True:
@@ -91,7 +96,8 @@ def poll_transcription_status(transcript_id):
 
 def process_transcription_data(transcript_data):
     """
-    Extracts useful information from the transcription, including speakers, entities, topics, and sentiment.
+    Processes and organizes the transcription results into structured data. Extracts key information
+    including speaker segments, entities,sentiment analysis, and topic categorization.
     """
     # Get the main transcription text
     transcription = transcript_data["text"]
@@ -108,18 +114,18 @@ def process_transcription_data(transcript_data):
         speakers[speaker]["duration"] += duration
         speakers[speaker]["text"] += f" {utterance['text']} "
     
-    # Gather other anaylsis data
+    # Gather other analysis data
     entities = transcript_data.get("entities", [])
     sentiment_analysis = transcript_data.get("sentiment_analysis_results", [])
     topics = transcript_data.get("iab_categories_result", {}).get("summary", {})
     content_safety = transcript_data.get("content_safety_labels", {}).get("summary", {})
     
-    return transcription, speakers, summary, entities, sentiment_analysis, topics, content_safety
+    return transcription, speakers, summary, entities, sentiment_analysis, topics, content_safety, transcript_data
 
 def get_audio_intelligence(file_path, basic=False):
     """
-    Upload an audio file, transcribe it, and extract relevant audio intelligence data.
-    If 'basic' is set to True, only basic transcription is performed.
+    Main processing function that handles the complete workflow from upload to transcription.
+    Supports both basic and advanced transcription modes based on the requirements.
     """
     #Upload the audio file and retrieve the URL
     audio_url = upload_audio(file_path)

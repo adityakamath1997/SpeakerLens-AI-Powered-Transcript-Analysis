@@ -5,4 +5,5 @@ __pycache__/
 *.pyc
 .vscode/
 *.log
-/data/
+/data/raw/*
+!data/raw/.gitkeep

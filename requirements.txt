@@ -1,9 +1,29 @@
+# Core web app framework for creating interactive data applications
 streamlit
+
+# OpenAI's API for advanced AI text analysis and insights
 openai
+
+# For loading environment variables from .env files
 python-dotenv
+
+# Data manipulation and analysis library
 pandas
+
+# Library for creating plots and visualizations
 matplotlib
+
+# Creates word clouds - visual representations where word size indicates frequency
 wordcloud
+
+# Natural Language Toolkit for text processing and analysis
 nltk
+
+# Library for making HTTP requests to web services
 requests
+
+# AssemblyAI's API for speech-to-text and audio analysis
 assemblyai
+
+# Library for creating and analyzing network graphs
+networkx
