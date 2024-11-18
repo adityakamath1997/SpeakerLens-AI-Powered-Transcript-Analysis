@@ -31,6 +31,10 @@ For the sake of demonstration, I've chosen an audio clip extracted from the vide
 
 ![Misc Analytics](images/f5.gif)
 
+**And just to demonstrate that the tool does indeed detect multiple topics and any sensitive content, this is an analysis of a 'Between Two Ferns' interview!:**
+
+![Between Two Ferns Analysis](images/f6.gif)
+
 ## 🎯 Business Value & Market Differentiation
 
 While there are several transcription tools available, this application stands out by providing a comprehensive, integrated analysis platform that combines multiple aspects of audio intelligence:
@@ -228,7 +232,7 @@ This project has been transformative for my technical growth. What began as a si
 - **Audio Processing**: Learning how to handle and process audio data efficiently
 - **Data Visualization**: Developing interactive and informative visualizations using matplotlib and streamlit
 - **API Integration**: Working with AssemblyAI's powerful API suite
-- **Real-time Processing**: Managing streaming data and providing live insights
+- **Web Development**: Building an interactive web application using Streamlit, including custom styling, responsive layouts, and user-friendly interfaces
 
 The project has especially enhanced my data visualization skills - from creating basic charts to developing complex, interactive dashboards that provide immediate value to users. Each visualization was carefully designed to answer specific questions about the conversation dynamics.
 
