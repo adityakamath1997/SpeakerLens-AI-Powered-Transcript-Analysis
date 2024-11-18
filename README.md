@@ -6,7 +6,7 @@ The tool combines my interests in data visualization and audio processing to cre
 
 ## ✨ App Demo
 
-For the sake of demonstration, I've chosen an audio clip extracted from the video of a staff meeting with multiple speakers on [YouTube](https://www.youtube.com/watch?v=oPhKhTI0Lss).
+For the sake of demonstration, I've chosen an audio clip extracted from the video of a staff meeting with multiple speakers on Youtube:
 
 *Upload an audio file of your choice:*
 
