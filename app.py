@@ -81,26 +81,133 @@ def extract_keywords(text):
 st.markdown(
     """
     <style>
-    .stApp { background-color: #2E2E2E; color: #ffffff; }
+    /* Gradient background */
+    .stApp {
+        background: linear-gradient(to bottom right, #1a1a2e, #16213e, #1a1a2e);
+        color: #ffffff;
+    }
+    
+    /* Enhanced box styling */
     .box {
-        background-color: #3E3E3E;
-        border: 1px solid #555555;
-        padding: 15px;
+        background: rgba(62, 62, 62, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 20px;
         margin-bottom: 20px;
-        border-radius: 8px;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-        color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    h1, h2, h3, h4, .st-upload-area {
-        color: #ffffff;
+    
+    .box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
+    
+    /* Enhanced headings */
+    h1, h2, h3, h4 {
+        color: #ffffff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        padding: 10px 0;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+    }
+    
+    /* Styled file uploader */
+    .st-upload-area {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .st-upload-area:hover {
+        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Enhanced legend items */
     .legend-item {
         display: inline-block;
-        margin-right: 10px;
-        padding: 3px 8px;
-        border-radius: 5px;
+        margin-right: 12px;
+        margin-bottom: 8px;
+        padding: 5px 12px;
+        border-radius: 20px;
         color: white;
         font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease;
+    }
+    
+    .legend-item:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Styled tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 5px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: transparent;
+        border-radius: 8px;
+        color: #ffffff;
+        padding: 8px 16px;
+        transition: all 0.2s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* Styled metrics */
+    [data-testid="stMetricValue"] {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 1.2em !important;
+        color: #4CAF50;
+    }
+    
+    /* Styled expanders */
+    .streamlit-expanderHeader {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 10px !important;
+        transition: background-color 0.2s ease;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
     }
     </style>
     """,
@@ -456,6 +563,8 @@ if uploaded_file is not None:
                         )
         else:
             st.write("No content safety concerns detected.")
+
+        
 
     except Exception as e:
         st.error(f"Error during audio analysis: {e}")
