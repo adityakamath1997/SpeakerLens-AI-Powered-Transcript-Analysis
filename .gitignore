@@ -5,4 +5,4 @@ __pycache__/
 *.pyc
 .vscode/
 *.log
-/data/
+/data/ #ignore the data folder
