@@ -6,11 +6,12 @@ from wordcloud import WordCloud
 import nltk
 from nltk.corpus import stopwords
 from src.assemblyai_processing import get_audio_intelligence
+from src.rag_system import initialize_rag_system
 
 # Basic configuration for the Streamlit application interface
 st.set_page_config(
     page_title="Audio Insights Hub",  # Title that appears on the browser tab
-    page_icon="🎙️",  # Favicon
+    page_icon="🎙️",  # Icon
     layout="centered",  # Use wide layout
     initial_sidebar_state="expanded"
 )
@@ -215,7 +216,7 @@ st.markdown(
 )
 
 # Set up the main user interface
-st.title("🎙️ Enhanced Audio Analysis with Full Feature Set")
+st.title("🎙️ Enhanced Audio Analysis")
 st.write("Upload an audio file (.mp3) for transcription, speaker identification, and analysis with color-coded sections for each speaker.")
 
 # File upload section:
@@ -564,7 +565,55 @@ if uploaded_file is not None:
         else:
             st.write("No content safety concerns detected.")
 
+        # RAG-based Chat Interface
+        st.header("💬 Chat with Your Transcript")
         
+        # Initialize session state for RAG system if not already done
+        if "rag_system" not in st.session_state:
+            rag, qa_chain = initialize_rag_system(transcription, speakers)
+            st.session_state.rag_system = rag
+            st.session_state.qa_chain = qa_chain
+            st.session_state.chat_history = []
+
+        # Chat interface
+        user_question = st.text_input(
+            "Ask a question about the conversation:",
+            key="user_question"
+        )
+        
+        if user_question:
+            with st.spinner("Processing your question..."):
+                result = st.session_state.rag_system.query(
+                    st.session_state.qa_chain,
+                    user_question
+                )
+                
+                # Display the answer
+                st.markdown("**Answer:**")
+                st.markdown(result["answer"])
+                
+                # Display sources in an expander
+                with st.expander("View Sources"):
+                    for idx, source in enumerate(result["sources"], 1):
+                        st.markdown(f"**Source {idx}:**")
+                        if source["metadata"]["type"] == "speaker_specific":
+                            st.markdown(f"*Speaker: {source['metadata']['speaker']}*")
+                        st.markdown(f"```\n{source['text']}\n```")
+                        st.markdown("---")
+
+                # Add to chat history
+                st.session_state.chat_history.append({
+                    "question": user_question,
+                    "answer": result["answer"]
+                })
+
+        # Display chat history
+        if st.session_state.chat_history:
+            st.markdown("### Chat History")
+            for entry in st.session_state.chat_history:
+                st.markdown(f"**Q:** {entry['question']}")
+                st.markdown(f"**A:** {entry['answer']}")
+                st.markdown("---")
 
     except Exception as e:
         st.error(f"Error during audio analysis: {e}")
