@@ -47,10 +47,27 @@ st.markdown(
 nltk.download("stopwords")
 STOP_WORDS = set(stopwords.words("english"))
 
-# Predefined color scheme for speaker differentiation
+# Arbitrary color scheme for speaker differentiation, you can changet his as per requirements
 SPEAKER_COLORS = [
-    "#FF6F61", "#6B5B95", "#88B04B", "#F7CAC9", "#92A8D1", "#955251", "#B565A7", "#009B77"
+    "#FF6F61",  # Coral
+    "#6B5B95",  # Purple
+    "#88B04B",  # Green
+    "#F7CAC9",  # Pink
+    "#92A8D1",  # Blue
+    "#955251",  # Brown
+    "#B565A7",  # Magenta
+    "#009B77"   # Teal
 ]
+
+# Create speaker_colors dictionary dynamically when processing transcript
+def assign_speaker_colors(speakers):
+    """
+    Assigns colors to speakers from the predefined color scheme
+    """
+    return {
+        speaker: SPEAKER_COLORS[i % len(SPEAKER_COLORS)]
+        for i, speaker in enumerate(speakers.keys())
+    }
 
 # Converts millisecond duration into readable time format
 def format_duration(milliseconds):
@@ -69,16 +86,29 @@ def format_duration(milliseconds):
     else:
         return f"{minutes}m {remaining_seconds}s"
 
-def extract_keywords(text):
+def extract_keywords(text, entities):
     """
-    Analyzes text to find significant keywords.
-    Removes common words and returns frequency count of remaining terms.
+    Analyzes text to count occurrences of detected entities.
+    Returns frequency count of entities found in the text.
     """
+    # Create a dictionary of all entities and their variations
+    entity_dict = {}
+    for entity in entities:
+        # Use the entity text as key and store its type
+        entity_dict[entity["text"].lower()] = entity["entity_type"]
+    
+    # Count occurrences of entities in text
     words = text.lower().split()
-    keywords = [word for word in words if word.isalpha() and word not in STOP_WORDS]
-    return Counter(keywords)
+    entity_counts = Counter()
+    
+    # Look for entities in the text
+    for word in words:
+        if word in entity_dict:
+            entity_counts[word] += 1
+            
+    return entity_counts
 
-# Custom dark theme styling for better readability
+# Custom dark theme
 st.markdown(
     """
     <style>
@@ -230,345 +260,302 @@ if uploaded_file is not None:
 
     st.header("📝 Full Transcription and Speaker-Specific Highlights")
     try:
-        # Retrieves analysis results from audio processing
+        # Retrieves analysis results from audio processing including all features
         transcription, speakers, summary, entities, sentiment_analysis, topics, content_safety, transcript_data = get_audio_intelligence(raw_audio_path)
+
+        # Assign colors to speakers
+        speaker_colors = assign_speaker_colors(speakers)
 
         # Confidence threshold for topic relevance filtering, this can be changed as per requirements
         CONFIDENCE_THRESHOLD = 0.5
 
-        # Create tabs for transcription display
-        transcript_tabs = st.tabs([
-            "Line by Line Transcript",
-            "Full Transcript"
+        # Create main dashboard tabs
+        st.header("📊 Analytics Dashboard")
+        dashboard_tabs = st.tabs([
+            "📝 Transcript",
+            "👥 Speaker Analysis",
+            "📊 Entity Insights",
+            "💡 Advanced Analytics",
+            "📋 Summary & Analysis",
+            "❓ Q&A"
         ])
 
-        # Tab 1: Line by Line Transcript
-        with transcript_tabs[0]:
-            st.subheader("Line by Line Transcript")
-            for utterance in transcript_data["utterances"]:
-                speaker_index = list(speakers.keys()).index(utterance["speaker"]) % len(SPEAKER_COLORS)
-                color = SPEAKER_COLORS[speaker_index]
+        # Tab 1: Transcript View
+        with dashboard_tabs[0]:
+            transcript_view = st.tabs([
+                "Line by Line",
+                "Full Transcript"
+            ])
+            
+            with transcript_view[0]:
+                st.subheader("Line by Line Transcript")
+                for utterance in transcript_data["utterances"]:
+                    speaker_index = list(speakers.keys()).index(utterance["speaker"]) % len(SPEAKER_COLORS)
+                    color = SPEAKER_COLORS[speaker_index]
+                    st.markdown(
+                        f"""<div class='box' style='background-color: {color}; padding: 8px; margin-bottom: 5px;'>
+                        <strong>{utterance["speaker"]}</strong>: {utterance["text"]}
+                        </div>""",
+                        unsafe_allow_html=True
+                    )
+            
+            with transcript_view[1]:
+                st.subheader("Full Transcript")
+                st.markdown(f"<div class='box'>{transcription}</div>", unsafe_allow_html=True)
+
+        # Tab 2: Speaker Analysis
+        with dashboard_tabs[1]:
+            st.subheader("Speaker Analysis")
+            
+            # Speaker Legend
+            st.markdown("### Speaker Legend")
+            legend_html = ""
+            for speaker, color in speaker_colors.items():
+                legend_html += f"<div class='legend-item' style='background-color: {color};'>{speaker}</div>"
+            st.markdown(legend_html, unsafe_allow_html=True)
+            
+            # Speaker Metrics
+            with st.expander("📊 Speaking Time Distribution", expanded=True):
+                total_duration = sum(data["duration"] for data in speakers.values())
+                speaking_times = {speaker: (data["duration"] / total_duration) * 100 
+                                for speaker, data in speakers.items()}
+                fig, ax = plt.subplots(figsize=(10, 6))
+                plt.pie(speaking_times.values(), 
+                       labels=[f"{speaker}\n({percentage:.1f}%)" 
+                              for speaker, percentage in speaking_times.items()],
+                       colors=[speaker_colors[speaker] for speaker in speaking_times.keys()],
+                       autopct='%1.1f%%')
+                plt.title("Speaking Time Distribution")
+                st.pyplot(fig)
+
+            # Individual Speaker Transcripts
+            with st.expander("📝 Speaker-Specific Transcripts"):
+                for speaker, data in speakers.items():
+                    color = speaker_colors[speaker]
+                    duration_formatted = format_duration(data["duration"])
+                    st.markdown(f"#### {speaker} - {duration_formatted}")
+                    st.markdown(
+                        f"<div class='box' style='background-color: {color}; color: #ffffff;'>{data['text']}</div>",
+                        unsafe_allow_html=True
+                    )
+
+        # Tab 3: Entity Insights
+        with dashboard_tabs[2]:
+            st.subheader("Entity Analysis")
+            
+            entity_tabs = st.tabs([
+                "Overall Entity Distribution",
+                "Speaker-Specific Entities",
+                "Entity Word Clouds"
+            ])
+            
+            with entity_tabs[0]:
+                st.markdown("### Most Mentioned Entities")
+                all_text = " ".join(data["text"] for data in speakers.values())
+                overall_entities = extract_keywords(all_text, entities)
+                most_common_entities = overall_entities.most_common(10)
+                if most_common_entities:
+                    entities_words, counts = zip(*most_common_entities)
+                    fig, ax = plt.subplots()
+                    ax.barh(entities_words, counts, color="#88B04B")
+                    ax.set_xlabel("Frequency")
+                    st.pyplot(fig)
+            
+            with entity_tabs[1]:
+                for speaker, data in speakers.items():
+                    with st.expander(f"🎤 {speaker}'s Entities"):
+                        speaker_entities = extract_keywords(data["text"], entities)
+                        common_entities = speaker_entities.most_common(5)
+                        if common_entities:
+                            entities_words, counts = zip(*common_entities)
+                            fig, ax = plt.subplots()
+                            ax.barh(entities_words, counts, color=speaker_colors[speaker])
+                            ax.set_xlabel("Frequency")
+                            st.pyplot(fig)
+            
+            with entity_tabs[2]:
+                # Your existing word clouds
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("### Overall Entity Cloud")
+                    wordcloud_dict = dict(overall_entities)
+                    if wordcloud_dict:
+                        wordcloud = WordCloud(width=400, height=200, 
+                                            background_color="black", 
+                                            colormap="Pastel1").generate_from_frequencies(wordcloud_dict)
+                        plt.figure(figsize=(10, 5))
+                        plt.imshow(wordcloud, interpolation="bilinear")
+                        plt.axis("off")
+                        st.pyplot(plt)
+
+        # Tab 4: Advanced Analytics
+        with dashboard_tabs[3]:
+            st.subheader("Advanced Insights")
+            
+            with st.expander("🔄 Conversation Flow", expanded=True):
+                fig, ax = plt.subplots(figsize=(12, 6))
+                speakers_list = list(speakers.keys())
+                for i, utterance in enumerate(transcript_data["utterances"]):
+                    speaker_idx = speakers_list.index(utterance["speaker"])
+                    start_time = utterance["start"] / 1000
+                    duration = (utterance["end"] - utterance["start"]) / 1000
+                    ax.barh(y=speaker_idx, 
+                           width=duration, 
+                           left=start_time, 
+                           color=speaker_colors[utterance["speaker"]],
+                           alpha=0.7)
+                ax.set_yticks(range(len(speakers_list)))
+                ax.set_yticklabels(speakers_list)
+                ax.set_xlabel("Time (seconds)")
+                ax.set_title("Conversation Flow Timeline")
+                st.pyplot(fig)
+            
+            with st.expander("📊 Topic Distribution"):
+                if topics:
+                    significant_topics = {k: v for k, v in topics.items() 
+                                       if v > CONFIDENCE_THRESHOLD}
+                    if significant_topics:
+                        fig, ax = plt.subplots(figsize=(10, 6))
+                        plt.barh(list(significant_topics.keys()), 
+                                list(significant_topics.values()))
+                        plt.xlabel('Confidence Score')
+                        plt.title('Topic Distribution')
+                        st.pyplot(fig)
+
+        # Tab 5: Summary & Analysis
+        with dashboard_tabs[4]:
+            st.subheader("Summary & Analysis")
+            
+            analysis_tabs = st.tabs([
+                "📝 Summary",
+                "🔍 Entities",
+                "💭 Sentiment",
+                "📚 Topics",
+                "⚠️ Content Safety"
+            ])
+            
+            # Summary Tab
+            with analysis_tabs[0]:
+                st.markdown("### 📝 Transcript Summary")
+                st.markdown(f"<div class='box'>{summary}</div>", unsafe_allow_html=True)
+            
+            # Entities Tab
+            with analysis_tabs[1]:
+                st.markdown("### 🔍 Entities Detected")
+                grouped_entities = defaultdict(list)
+                for entity in entities:
+                    grouped_entities[entity["entity_type"]].append(entity["text"])
+                
+                for category, items in grouped_entities.items():
+                    with st.expander(f"{category.capitalize()}"):
+                        unique_items = list(set(items))  # Remove duplicates
+                        st.write(", ".join(unique_items))
+            
+            # Sentiment Tab
+            with analysis_tabs[2]:
+                st.markdown("### 💭 Sentiment Analysis")
+                sentiments_summary = {}
+                for sentiment in sentiment_analysis:
+                    sentiment_type = sentiment["sentiment"]
+                    sentiments_summary[sentiment_type] = sentiments_summary.get(sentiment_type, 0) + 1
+                
+                # Create a pie chart for sentiment distribution
+                if sentiments_summary:
+                    fig, ax = plt.subplots(figsize=(8, 6))
+                    colors = {
+                        'POSITIVE': '#90EE90',
+                        'NEUTRAL': '#F0E68C',
+                        'NEGATIVE': '#FFB6C1'
+                    }
+                    plt.pie(sentiments_summary.values(),
+                           labels=[f"{k}\n({v} occurrences)" for k, v in sentiments_summary.items()],
+                           colors=[colors.get(k, '#808080') for k in sentiments_summary.keys()],
+                           autopct='%1.1f%%')
+                    plt.title("Sentiment Distribution")
+                    st.pyplot(fig)
+                
                 st.markdown(
-                    f"""<div class='box' style='background-color: {color}; padding: 8px; margin-bottom: 5px;'>
-                    <strong>{utterance["speaker"]}</strong>: {utterance["text"]}
-                    </div>""",
+                    "<div class='box'>" +
+                    ", ".join(f"<b>{key}:</b> {value} occurrences" for key, value in sentiments_summary.items()) +
+                    "</div>",
                     unsafe_allow_html=True
                 )
-
-        # Tab 2: Full Transcript
-        with transcript_tabs[1]:
-            st.subheader("Transcription (Original Order, No Color)")
-            st.markdown(f"<div class='box'>{transcription}</div>", unsafe_allow_html=True)
-
-        # Assign each speaker a color for the visualizations
-        speaker_colors = {}
-        color_index = 0
-        for speaker in speakers.keys():
-            speaker_colors[speaker] = SPEAKER_COLORS[color_index % len(SPEAKER_COLORS)]
-            color_index += 1
-
-        # Create a legend to help differentiate between speakers
-        st.subheader("Speaker Legend")
-        legend_html = ""
-        for speaker, color in speaker_colors.items():
-            legend_html += f"<div class='legend-item' style='background-color: {color};'>{speaker}</div>"
-        st.markdown(legend_html, unsafe_allow_html=True)
-
-        # Show each speakers text segment with assigned color
-        st.header("🔊 Speaker-Specific Transcription")
-        for speaker, data in speakers.items():
-            color = speaker_colors[speaker]
-            duration_formatted = format_duration(data["duration"])
-            st.subheader(f"{speaker} - {duration_formatted}")
-            st.markdown(
-                f"<div class='box' style='background-color: {color}; color: #ffffff;'>{data['text']}</div>",
-                unsafe_allow_html=True
-            )
-
-        st.header("📊 Visualizations")
-        visualization_tabs = st.tabs([
-            "Bar Chart: Total Words",
-            "Bar Chart: Words per Speaker",
-            "Word Cloud: Total Words",
-            "Word Cloud: Words per Speaker"
-        ])
-
-        # Tab 1: Bar Chart of Total Words
-        with visualization_tabs[0]:
-            st.subheader("Bar Chart of Most Common Words (Total)")
-            all_text = " ".join(data["text"] for data in speakers.values())
-            overall_keywords = extract_keywords(all_text)
-            most_common_keywords = overall_keywords.most_common(10)
-            if most_common_keywords:
-                keywords, counts = zip(*most_common_keywords)
-                fig, ax = plt.subplots()
-                ax.barh(keywords, counts, color="#88B04B")
-                ax.set_xlabel("Frequency")
-                ax.set_title("Most Common Words (Total)")
-                st.pyplot(fig)
-            else:
-                st.write("No significant keywords found.")
-
-        # Tab 2: Bar Chart of Words per Speaker
-        with visualization_tabs[1]:
-            st.subheader("Bar Chart of Most Common Words (Per Speaker)")
-            for speaker, data in speakers.items():
-                st.write(f"**{speaker}**")
-                speaker_keywords = extract_keywords(data["text"])
-                common_keywords = speaker_keywords.most_common(5)
-                if common_keywords:
-                    keywords, counts = zip(*common_keywords)
-                    fig, ax = plt.subplots()
-                    ax.barh(keywords, counts, color=SPEAKER_COLORS[list(speakers.keys()).index(speaker) % len(SPEAKER_COLORS)])
-                    ax.set_xlabel("Frequency")
-                    ax.set_title(f"Top Keywords for {speaker}")
-                    st.pyplot(fig)
+            
+            # Topics Tab
+            with analysis_tabs[3]:
+                st.markdown("### 📚 Relevant Topics")
+                if topics:
+                    filtered_topics = {topic: confidence 
+                                     for topic, confidence in topics.items() 
+                                     if confidence > CONFIDENCE_THRESHOLD}
+                    if filtered_topics:
+                        # Create bar chart for topic confidence
+                        fig, ax = plt.subplots(figsize=(10, 6))
+                        topics_sorted = dict(sorted(filtered_topics.items(), 
+                                                  key=lambda x: x[1], 
+                                                  reverse=True))
+                        plt.barh(list(topics_sorted.keys()), 
+                                list(topics_sorted.values()))
+                        plt.xlabel('Confidence Score')
+                        plt.title('Topic Detection Confidence')
+                        st.pyplot(fig)
+                        
+                        for topic, confidence in topics_sorted.items():
+                            st.markdown(
+                                f"<div class='box'>Topic: <b>{topic}</b>, "
+                                f"Confidence: {confidence:.2f}</div>",
+                                unsafe_allow_html=True
+                            )
+                    else:
+                        st.write("No highly relevant topics detected.")
                 else:
-                    st.write("No significant keywords found for this speaker.")
-
-        # Tab 3: Word Cloud of Total Words
-        with visualization_tabs[2]:
-            st.subheader("Word Cloud of Most Frequent Non-Common Words (Total)")
-            wordcloud_text = " ".join([word for word in transcription.split() if word.lower() not in STOP_WORDS])
-            wordcloud = WordCloud(width=800, height=400, background_color="black", colormap="Pastel1").generate(wordcloud_text)
-            plt.figure(figsize=(10, 5))
-            plt.imshow(wordcloud, interpolation="bilinear")
-            plt.axis("off")
-            st.pyplot(plt)
-
-        # Tab 4: Word Cloud of Words per Speaker
-        with visualization_tabs[3]:
-            st.subheader("Word Cloud of Most Frequent Non-Common Words (Per Speaker)")
-            for speaker, data in speakers.items():
-                st.write(f"**{speaker}**")
-                speaker_wordcloud_text = " ".join([word for word in data["text"].split() if word.lower() not in STOP_WORDS])
-                if speaker_wordcloud_text:
-                    speaker_wordcloud = WordCloud(width=800, height=400, background_color=SPEAKER_COLORS[list(speakers.keys()).index(speaker) % len(SPEAKER_COLORS)], colormap="Pastel1").generate(speaker_wordcloud_text)
-                    plt.figure(figsize=(10, 5))
-                    plt.imshow(speaker_wordcloud, interpolation="bilinear")
-                    plt.axis("off")
-                    st.pyplot(plt)
+                    st.write("No topics detected.")
+            
+            # Content Safety Tab
+            with analysis_tabs[4]:
+                st.markdown("### ⚠️ Content Safety Analysis")
+                if content_safety:
+                    safety_categories = {
+                        "hate_speech": "Hate Speech",
+                        "insult": "Insults",
+                        "profanity": "Profanity",
+                        "threat": "Threats",
+                        "self_harm": "Self-Harm References",
+                        "sexual": "Sexual Content",
+                        "violence": "Violence"
+                    }
+                    
+                    # Create bar chart for safety metrics
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    safety_data = {safety_categories[k]: v 
+                                 for k, v in content_safety.items() 
+                                 if k in safety_categories}
+                    if safety_data:
+                        plt.barh(list(safety_data.keys()), 
+                                list(safety_data.values()))
+                        plt.xlabel('Confidence Score')
+                        plt.title('Content Safety Analysis')
+                        st.pyplot(fig)
+                    
+                    for category, label in safety_categories.items():
+                        if category in content_safety:
+                            confidence = content_safety[category]
+                            color = "#FF6B6B" if confidence > CONFIDENCE_THRESHOLD else "#4CAF50"
+                            st.markdown(
+                                f"<div class='box' style='background-color: {color};'>"
+                                f"{label}: {confidence:.1%} confidence</div>",
+                                unsafe_allow_html=True
+                            )
                 else:
-                    st.write("No significant keywords for this speaker.")
+                    st.write("No content safety concerns detected.")
 
-        # Advanced Business Insights Visualizations
-        st.header("📈 Advanced Analytics & Business Insights")
-        insights_tabs = st.tabs([
-            "Speaker Engagement Metrics",
-            "Conversation Flow Analysis",
-            "Topic Distribution",
-            "Sentiment Timeline"
-        ])
+        # Separator between dashboard and Q&A section
+        st.markdown("---")
 
-        # Tab 1: Speaker Engagement Metrics - Shows who talks the most and how much each person contributes
-        with insights_tabs[0]:
-            st.subheader("Speaker Engagement Analysis")
-            
-            # Calculate speaking time distribution - Shows what percentage of the conversation each person takes up
-            total_duration = sum(data["duration"] for data in speakers.values())
-            speaking_times = {speaker: (data["duration"] / total_duration) * 100 
-                            for speaker, data in speakers.items()}
-            
-            # Create pie chart for speaking time distribution - Visual breakdown of talking time
-            fig, ax = plt.subplots(figsize=(10, 6))
-            plt.pie(speaking_times.values(), 
-                   labels=[f"{speaker}\n({percentage:.1f}%)" 
-                          for speaker, percentage in speaking_times.items()],
-                   colors=[speaker_colors[speaker] for speaker in speaking_times.keys()],
-                   autopct='%1.1f%%')
-            plt.title("Speaking Time Distribution")
-            st.pyplot(fig)
-            
-            # Calculate average words per turn - Shows how much each person says when they speak
-            avg_utterance_lengths = {}
-            for speaker in speakers:
-                speaker_utterances = [u for u in transcript_data["utterances"] 
-                                    if u["speaker"] == speaker]
-                avg_length = sum(len(u["text"].split()) for u in speaker_utterances) / len(speaker_utterances)
-                avg_utterance_lengths[speaker] = avg_length
-            
-            # Bar chart for average utterance length
-            fig, ax = plt.subplots(figsize=(10, 6))
-            bars = ax.bar(avg_utterance_lengths.keys(), 
-                         avg_utterance_lengths.values(),
-                         color=[speaker_colors[speaker] for speaker in avg_utterance_lengths.keys()])
-            ax.set_title("Average Words per Turn")
-            ax.set_ylabel("Number of Words")
-            plt.xticks(rotation=45)
-            st.pyplot(fig)
-
-        # Tab 2: Conversation Flow Analysis - Shows how the conversation moves between speakers over time
-        with insights_tabs[1]:
-            st.subheader("Conversation Flow Patterns")
-            
-            # Timeline visualization - Shows when each person speaks throughout the meeting
-            fig, ax = plt.subplots(figsize=(12, 6))
-            speakers_list = list(speakers.keys())
-            for i, utterance in enumerate(transcript_data["utterances"]):
-                speaker_idx = speakers_list.index(utterance["speaker"])
-                start_time = utterance["start"] / 1000  # Convert to seconds
-                duration = (utterance["end"] - utterance["start"]) / 1000
-                ax.barh(y=speaker_idx, 
-                       width=duration, 
-                       left=start_time, 
-                       color=speaker_colors[utterance["speaker"]],
-                       alpha=0.7)
-            
-            ax.set_yticks(range(len(speakers_list)))
-            ax.set_yticklabels(speakers_list)
-            ax.set_xlabel("Time (seconds)")
-            ax.set_title("Conversation Flow Timeline")
-            st.pyplot(fig)
-
-        # Tab 3: Topic Distribution - Shows what topics were discussed and how confident we are about each topic
-        with insights_tabs[2]:
-            st.subheader("Topic Distribution Analysis")
-            
-            if topics:
-                # Filter out less relevant topics to focus on the important ones
-                significant_topics = {k: v for k, v in topics.items() 
-                                   if v > CONFIDENCE_THRESHOLD}
-                
-                if significant_topics:
-                    # Create treemap of topics
-                    fig, ax = plt.subplots(figsize=(12, 8))
-                    plt.rcParams['font.size'] = 12
-                    
-                    # Sort topics by confidence
-                    sorted_topics = dict(sorted(significant_topics.items(), 
-                                              key=lambda x: x[1], 
-                                              reverse=True))
-                    
-                    # Create horizontal bar chart
-                    y_pos = range(len(sorted_topics))
-                    plt.barh(y_pos, sorted_topics.values())
-                    plt.yticks(y_pos, sorted_topics.keys())
-                    plt.xlabel('Confidence Score')
-                    plt.title('Topic Distribution by Confidence')
-                    
-                    st.pyplot(fig)
-                else:
-                    st.write("No significant topics detected above the confidence threshold.")
-            else:
-                st.write("No topic data available.")
-
-        # Tab 4: Sentiment Timeline - Shows how the emotional tone changes throughout the conversation
-        with insights_tabs[3]:
-            st.subheader("Sentiment Analysis Timeline")
-            
-            if sentiment_analysis:
-                # Create timeline showing emotional changes - Green for positive, Gray for neutral, Red for negative
-                fig, ax = plt.subplots(figsize=(12, 6))
-                
-                # Map sentiments to numerical values
-                sentiment_map = {"POSITIVE": 1, "NEUTRAL": 0, "NEGATIVE": -1}
-                times = [(s["start"] + s["end"]) / 2000 for s in sentiment_analysis]  # Convert to seconds
-                sentiments = [sentiment_map[s["sentiment"]] for s in sentiment_analysis]
-                
-                # Create scatter plot with connecting lines
-                plt.plot(times, sentiments, 'b-', alpha=0.3)
-                plt.scatter(times, sentiments, c=[{
-                    "POSITIVE": "green",
-                    "NEUTRAL": "gray",
-                    "NEGATIVE": "red"
-                }[s["sentiment"]] for s in sentiment_analysis])
-                
-                plt.ylim([-1.5, 1.5])
-                plt.yticks([-1, 0, 1], ['Negative', 'Neutral', 'Positive'])
-                plt.xlabel('Time (seconds)')
-                plt.title('Sentiment Timeline')
-                
-                st.pyplot(fig)
-                
-                # Calculate and display sentiment distribution
-                sentiment_counts = Counter(s["sentiment"] for s in sentiment_analysis)
-                total_segments = len(sentiment_analysis)
-                
-                st.markdown("### Sentiment Distribution")
-                cols = st.columns(3)
-                
-                with cols[0]:
-                    positive_percentage = (sentiment_counts.get("POSITIVE", 0) / total_segments) * 100
-                    st.metric("Positive", f"{positive_percentage:.1f}%")
-                
-                with cols[1]:
-                    neutral_percentage = (sentiment_counts.get("NEUTRAL", 0) / total_segments) * 100
-                    st.metric("Neutral", f"{neutral_percentage:.1f}%")
-                
-                with cols[2]:
-                    negative_percentage = (sentiment_counts.get("NEGATIVE", 0) / total_segments) * 100
-                    st.metric("Negative", f"{negative_percentage:.1f}%")
-            else:
-                st.write("No sentiment analysis data available.")
-
-        # Summary of the audio content
-        st.header("📝 Summary")
-        st.markdown(f"<div class='box'>{summary}</div>", unsafe_allow_html=True)
-
-         # Entities Grouped by Category with Dropdowns
-        st.header("🔍 Unique Entities Detected (Grouped by Category)")
-        grouped_entities = defaultdict(list)
-        for entity in entities:
-            grouped_entities[entity["entity_type"]].append(entity["text"])
-        
-        for category, items in grouped_entities.items():
-            with st.expander(f"{category.capitalize()} (Click to expand)"):
-                unique_items = list(set(items))  # Remove duplicates
-                st.write(", ".join(unique_items))
-
-        # Summary of sentiment analysis(WIP)
-        st.header("💬 Sentiment Analysis Overview")
-        sentiments_summary = {}
-        for sentiment in sentiment_analysis:
-            sentiment_type = sentiment["sentiment"]
-            sentiments_summary[sentiment_type] = sentiments_summary.get(sentiment_type, 0) + 1
-        st.markdown(
-            "<div class='box'>" +
-            ", ".join(f"<b>{key}:</b> {value} occurrences" for key, value in sentiments_summary.items()) +
-            "</div>",
-            unsafe_allow_html=True
-        )
-
-        # Filtered topic detection display
-        st.header("📚 Relevant Topic Detection")
-        if topics:
-            filtered_topics = {topic: confidence for topic, confidence in topics.items() if confidence > CONFIDENCE_THRESHOLD}
-            if filtered_topics:
-                for topic, confidence in filtered_topics.items():
-                    st.markdown(f"<div class='box'>Topic: <b>{topic}</b>, Confidence: {confidence:.2f}</div>", unsafe_allow_html=True)
-            else:
-                st.write("No highly relevant topics detected.")
-        else:
-            st.write("No topics detected.")
-
-        # Content Safety Analysis - Checks for potentially problematic content like hate speech or threats
-        st.header("⚠️ Content Safety Analysis")
-        if content_safety:
-            safety_categories = {
-                "hate_speech": "Hate Speech",
-                "insult": "Insults",
-                "profanity": "Profanity",
-                "threat": "Threats",
-                "self_harm": "Self-Harm References",
-                "sexual": "Sexual Content",
-                "violence": "Violence"
-            }
-            
-            for category, label in safety_categories.items():
-                if category in content_safety:
-                    confidence = content_safety[category]
-                    if confidence > CONFIDENCE_THRESHOLD:
-                        st.markdown(
-                            f"<div class='box' style='background-color: #FF6B6B;'>{label} detected with {confidence:.1%} confidence</div>",
-                            unsafe_allow_html=True
-                        )
-        else:
-            st.write("No content safety concerns detected.")
-
-        # RAG-based Chat Interface
+         # RAG-based Chat Interface
         st.header("💬 Chat with Your Transcript")
         
-        # Initialize session state for RAG system if not already done
+        # Initialize session state
         if "rag_system" not in st.session_state:
             rag, qa_chain = initialize_rag_system(transcription, speakers)
             st.session_state.rag_system = rag

@@ -18,14 +18,14 @@ class TranscriptRAG:
         self.embeddings = OpenAIEmbeddings()
         # Breaking up the text into smaller pieces (chunks) so it's easier to search through
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200,
+            chunk_size=1000, #Size of each chunk, feel free to modify this
+            chunk_overlap=200, #Overlap between chunks, this can be modified as well
             length_function=len,
             separators=["\n\n", "\n", " ", ""]
         )
         # Using GPT-4 for better answers
         self.llm = ChatOpenAI(temperature=0.7, model="gpt-4-turbo-preview")
-        # Keeping track of the conversation history
+        # Keeping track of the covnersation history
         self.memory = ConversationBufferMemory(
             memory_key="chat_history",
             return_messages=True
@@ -77,8 +77,8 @@ class TranscriptRAG:
         base_retriever = vector_store.as_retriever(
             search_type="similarity_score_threshold",
             search_kwargs={
-                "k": 4,
-                "score_threshold": 0.5,
+                "k": 4, # Number of chunks to retrieve, modify this as needed
+                "score_threshold": 0.5 #Threshold for similarity score, feel free to change this
             }
         )
 
@@ -108,7 +108,7 @@ class TranscriptRAG:
         Question: {question}
         
         When answering:
-        1. If the context mentions specific speakers, include who said what
+        1. If the context mentions specific speakers, include who said what. Be specific about which speaker said what. e.g 'Speaker A: "Hello, how are you?"
         2. Provide direct quotes when relevant
         3. Be concise but comprehensive
         4. If the answer requires multiple points, use a numbered list

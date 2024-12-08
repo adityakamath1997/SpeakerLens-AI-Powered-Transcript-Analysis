@@ -3,7 +3,7 @@ import requests
 from dotenv import load_dotenv
 import time
 
-# API key loaded from environment variables for security best practices
+# API key loaded from environment variables
 load_dotenv()
 ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
 
@@ -36,7 +36,7 @@ def transcribe_basic_audio(audio_url):
     endpoint = f"{ASSEMBLYAI_URL}/transcript"
     json_data = {
         "audio_url": audio_url,
-        "speaker_labels": True  # Identifying different speakers
+        "speaker_labels": True  # Identifying different speakers, the crux of this project.
     }
     print("Sending basic transcription request with data:", json_data)  # Log the request payload for debugging
     try:
@@ -52,7 +52,7 @@ def transcribe_audio_with_features(audio_url):
     """
     Enhanced transcription that includes speaker labels, entity detection, sentiment analysis,
     and content summarization.Provides comprehensive analysis of the audio content using
-    AssemblyAI's advanced features.
+    all of AssemblyAI's avialable features
     """
     endpoint = f"{ASSEMBLYAI_URL}/transcript"
     json_data = {
@@ -91,7 +91,7 @@ def poll_transcription_status(transcript_id):
             return response_data
         elif status == "failed":
             raise RuntimeError("Transcription failed due to an error.")
-        print("Transcription in progress... will check again in 5 seconds.")
+        print("Transcription in progress... checking again in 5 seconds.")
         time.sleep(5)
 
 def process_transcription_data(transcript_data):
