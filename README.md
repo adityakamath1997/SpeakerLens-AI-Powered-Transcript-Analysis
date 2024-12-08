@@ -44,13 +44,17 @@ While there are several transcription tools available, this application stands o
 - **Interactive Visualizations**: Provides immediate visual insights through:
   - Speaker engagement metrics and talk-time distribution
   - Conversation flow timelines
-  - Topic distribution analysis
-  - Real-time sentiment tracking
+  - Entity distribution analysis
+  - Topic confidence visualization
+  - Sentiment analysis charts
+- **Intelligent Q&A System**: RAG-powered question answering that:
+  - Provides accurate answers with source citations
+  - Maintains context across the conversation
+  - Links answers to specific speakers and segments
 - **Detailed Speaker Analytics**: Goes beyond basic transcription by providing:
-  - Speaker-specific word clouds
+  - Speaker-specific transcripts
   - Speaking time analysis
-  - Word usage patterns per speaker
-  - Engagement metrics
+  - Entity mention tracking per speaker
 
 ### Practical Applications
 
@@ -103,6 +107,63 @@ Each use case leverages the core features of speaker diarization, sentiment anal
 - **Call Center Software**: Integration for customer service analysis
 - **Content Management Systems**: API integration for content processing and analysis
 
+## 🛠️ Tech Stack
+
+### Core Technologies
+- **Python 3.8+**: Primary programming language
+- **Streamlit**: Web application framework for creating the interactive dashboard
+- **Matplotlib & Plotly**: Data visualization libraries for creating charts and graphs
+- **WordCloud**: Text visualization for keyword analysis
+
+### AI & Machine Learning
+- **AssemblyAI API**: 
+  - Speech-to-text transcription
+  - Speaker diarization (speaker identification)
+  - Topic detection
+  - Entity recognition
+  - Sentiment analysis
+  - Content safety detection
+
+- **OpenAI API**:
+  - GPT-4 for question answering and text analysis
+  - text-embedding-ada-002 for text embeddings in RAG system
+
+### RAG (Retrieval Augmented Generation)
+- **LangChain**: Framework for building RAG pipeline
+- **ChromaDB**: Vector database for storing and retrieving embeddings
+- **tiktoken**: Token counting and text splitting
+
+### Data Processing
+- **python-dotenv**: Environment variable management
+- **NumPy & Pandas**: Data manipulation and analysis
+- **Collections**: Data structure management
+
+### Visualization Components
+- **Matplotlib**: 
+  - Speaker timeline visualization
+  - Entity distribution charts
+  - Topic confidence graphs
+  - Sentiment analysis pie charts
+
+- **WordCloud**:
+  - Entity visualization
+  - Keyword frequency representation
+
+### Development Tools
+- **Git**: Version control
+- **VS Code**: Development environment
+- **requirements.txt**: Dependency management
+
+Each technology was chosen for specific reasons:
+- **Streamlit**: Enables rapid development of data apps with minimal frontend code
+- **AssemblyAI**: Provides comprehensive audio intelligence features in a single API
+- **OpenAI**: Powers the RAG system with state-of-the-art language models
+- **LangChain**: Simplifies the implementation of complex RAG pipelines
+- **ChromaDB**: Efficient vector storage and retrieval for semantic search
+- **Matplotlib**: Flexible, publication-quality figures
+
+While AssemblyAI offers LeMUR for transcript question-answering, this project implements a custom RAG pipeline using OpenAI embeddings and LangChain. This choice provides greater flexibility in handling longer transcripts, allows for customization of the retrieval process, and enables future extensions of the system. The implementation gives full control over how transcripts are chunked, embedded, and retrieved, which is crucial for maintaining accuracy with lengthy conversations and complex queries.
+
 ## 🔧 Technical Implementation
 
 This project leverages AssemblyAI's powerful API suite for its core functionality. Here's a breakdown of the implementation:
@@ -141,12 +202,23 @@ This structure ensures maintainability and makes it easy to add new features or 
 
 ## ✨ Key Features
 
-- **Transcription and Speaker Diarization**: Convert audio into text while identifying individual speakers.
-- **Keyword Extraction**: Automatically highlights and visualizes significant keywords from the audio content, excluding common stop words.
-- **Sentiment Analysis**: Extracts sentiment from each section of speech to provide context on tone.
-- **Entity Detection**: Identifies key entities (people, places, organizations) mentioned in the audio.
-- **Content Safety**: Flags sensitive content using AssemblyAI’s content safety features.
-- **Speaker-Specific Analysis**: Breaks down keywords, duration, and speaking time for each speaker, using color-coded sections for clarity.
+- **Transcription and Speaker Diarization**: Convert audio into text while identifying individual speakers
+- **Interactive Dashboard**:
+  - Full and speaker-wise transcripts
+  - Speaker timeline visualization
+  - Speaking time distribution
+  - Entity detection and visualization
+  - Topic analysis
+  - Sentiment analysis
+  - Content safety check
+- **Entity Analysis**: Identifies and visualizes key entities (people, places, organizations) mentioned in the audio
+- **Advanced Analytics**:
+  - Conversation flow timeline
+  - Topic confidence visualization
+  - Sentiment distribution charts
+  - Content safety metrics
+- **Question Answering**: RAG-powered system to answer questions about the transcript with source attribution
+- **Speaker-Specific Analysis**: Color-coded sections for each speaker with individual analytics
 
 ## 🛠️ Getting Started
 
@@ -188,14 +260,16 @@ This structure ensures maintainability and makes it easy to add new features or 
 
    Once the application starts:
    1. Open your browser to the displayed URL (typically http://localhost:8501)
-   2. Upload an MP3 file using the file uploader
-   3. Wait for the processing to complete (you'll see a progress bar)
-   4. Explore the analysis through different tabs:
+   2. Create a data folder in the root directory if it doesn't exist already!
+   3. Upload an MP3 file using the file uploader
+   4. Wait for the processing to complete (you'll see a progress bar)
+   5. Explore the analysis through different tabs:
       - View the full and speaker-wise transcripts
       - Analyze speaker participation metrics
       - Explore keyword distributions
       - Check sentiment analysis results
       - Review detected entities and topics
+   6. Ask questions about the transcript using the chatbot!
 
    **Note**: A sample meeting audio file with multiple speakers is included in the `samples` folder for testing. You can:
    - Use this sample file to quickly test the app's features
@@ -242,10 +316,9 @@ There’s a lot more I intend to do with this project! Here a few features I pla
 
 - **Enhanced AssemblyAI Features**: Currently, the project uses only a subset of AssemblyAI’s capabilities. Future updates will explore and integrate more of its features, such as advanced content safety analysis, summarization, and more detailed audio insights.
 - **Speaker Profile Identification**: Analyze and identify speaker profiles, such as age or gender, using additional machine learning models.
-- **LangChain Integration**: Experiment with LangChain to enable complex text processing chains and knowledge retrieval from transcriptions, enhancing the app's ability to contextualize and analyze audio content.
-- **Multi-API Support**: Integrate other AI providers (like OpenAI) for advanced summarization, contextual analysis, or voice-to-profile matching.
 - **Real-time Processing**: Expand support for real-time audio streaming and live analysis to provide insights as audio is being recorded or played. I think AssemblyAI already has capabilities for this, but I haven't yet experimented with real-time processing.
 - **Topic Modeling and Improved Visualizations**: Incorporate additional NLP techniques for enhanced topic detection and provide more user-friendly and interactive visual insights, making it easier for users to understand complex audio data at a glance.
 - **More Visualizations!**: Add further visualizations for additional features I'm hoping to implement.
 
 ... and a lot more that I haven't yet noted down!
+
