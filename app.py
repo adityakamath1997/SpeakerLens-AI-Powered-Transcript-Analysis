@@ -256,6 +256,9 @@ st.write("Ask questions about the conversation once that's done!")
 uploaded_file = st.file_uploader("Choose an audio file...", type=["mp3"])
 
 if uploaded_file is not None:
+    # Create data/raw directory if it doesn't exist
+    os.makedirs(os.path.join("data", "raw"), exist_ok=True)
+    
     raw_audio_path = os.path.join("data", "raw", uploaded_file.name)
     with open(raw_audio_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
