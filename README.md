@@ -1,4 +1,16 @@
-# Audio Analysis and Speaker Identification Project
+# SpeakerLens
+
+Transform audio conversations into actionable insights! SpeakerLens is an intelligent audio analysis tool that automatically identifies speakers (also known as speaker diarization), transcribes conversations, and provides beautiful visualizations of the conversation dynamics to help you gain a full understanding of the conversation.
+
+That's not all! SpeakerLens also features an AI-powered Q&A system to answer questions about the transcript, taking into account speaker-wise context!
+
+**"But Aditya," I hear you say, "Couldn't I just one of those freely available transcription tools online?"**
+
+Yes you could, maybe for short audio clips having a single speaker. But what if you have a long recording with multiple speakers? Think of a situation like a sales call, or a court room hearing. A simple transcription tool just isn't going to cut it!
+
+Most transcription tools like OpenAI's Whisper only provide a transcript of the entire audio, without any speaker identification or context.
+
+This tool provides a comprehensive solution to all of these problems, as a sort of a 'one-stop-shop' for all audio analysis needs.
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -303,7 +315,7 @@ Speech-Diarization-Project/
 │   └── raw/                      # Audio file storage (gitignored)
 │       └── .gitkeep
 ├── images/                       # Demo screenshots
-│   ├── demo1.png
+│   ├��─ demo1.png
 │   ├── demo2.png
 │   └── ...
 ├── app.py                        # Main Streamlit application

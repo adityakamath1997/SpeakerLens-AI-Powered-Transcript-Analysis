@@ -5,5 +5,4 @@ __pycache__/
 *.pyc
 .vscode/
 *.log
-raw/
 vectorstore/
