@@ -10,7 +10,7 @@ from src.rag_system import initialize_rag_system
 
 # Basic configuration for the Streamlit application interface
 st.set_page_config(
-    page_title="Audio Insights Hub",  # Title that appears on the browser tab
+    page_title="SpeakerLens",
     page_icon="🎙️",  # Icon
     layout="centered",  # Use wide layout
     initial_sidebar_state="expanded"
@@ -44,8 +44,11 @@ st.markdown(
 )
 
 # Standard English stop words used for text analysis
-nltk.download("stopwords")
-STOP_WORDS = set(stopwords.words("english"))
+
+#nltk.download("stopwords")
+#STOP_WORDS = set(stopwords.words("english"))
+
+#I had initially done analysis on ALL words spoken in the transcript other than the stop words, but I decided to base my analysis only on the entities detected later.
 
 # Arbitrary color scheme for speaker differentiation, you can changet his as per requirements
 SPEAKER_COLORS = [
@@ -72,8 +75,7 @@ def assign_speaker_colors(speakers):
 # Converts millisecond duration into readable time format
 def format_duration(milliseconds):
     """
-    Converts duration from milliseconds to a readable time format.
-    Returns formatted string in hours, minutes, and seconds.
+    Converts the duration of the audio file from its default in milliseconds to seconds, minutes, and hours.
     """
     seconds = milliseconds / 1000
     minutes = int(seconds // 60)
@@ -246,8 +248,9 @@ st.markdown(
 )
 
 # Set up the main user interface
-st.title("🎙️ Enhanced Audio Analysis")
+st.title("🎙️ SpeakerLens")
 st.write("Upload an audio file (.mp3) for transcription, speaker identification, and analysis with color-coded sections for each speaker.")
+st.write("Ask questions about the conversation once that's done!")
 
 # File upload section:
 uploaded_file = st.file_uploader("Choose an audio file...", type=["mp3"])
@@ -552,7 +555,7 @@ if uploaded_file is not None:
         # Separator between dashboard and Q&A section
         st.markdown("---")
 
-         # RAG-based Chat Interface
+         # RAG-based Chat Interface that implements a simple RAG pipeline.
         st.header("💬 Chat with Your Transcript")
         
         # Initialize session state

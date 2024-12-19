@@ -13,8 +13,7 @@ HEADERS = {"authorization": ASSEMBLYAI_API_KEY}
 
 def upload_audio(file_path):
     """
-    Handles the upload of audio filesto AssemblyAI servers and returns a URL for the stored file.
-    Includes error handling for failed uploads and logs the process for debuging purposes.
+    Handles the upload of audio filesto AssemblyAI servers and returns a URL for the stored file, including error handling and logging.
     """
     try:
         with open(file_path, "rb") as f:
@@ -30,8 +29,7 @@ def upload_audio(file_path):
 
 def transcribe_basic_audio(audio_url):
     """
-    Performs basic audio transcrpition with speaker identification. Returns a unique ID
-    that can be used to track the transcription progress.
+    Performs basic audio transcrpition with speaker identification and returns a unique ID that can be used to track the transcription progress.
     """
     endpoint = f"{ASSEMBLYAI_URL}/transcript"
     json_data = {
@@ -78,8 +76,7 @@ def transcribe_audio_with_features(audio_url):
 
 def poll_transcription_status(transcript_id):
     """
-    Monitors the transcription progress by checking status every 5 seconds until completion.
-    Returns the final transcription data or raises an error if the process fails.
+    Monitors the transcription progress by checking status every 10 seconds until completion.
     """
     endpoint = f"{ASSEMBLYAI_URL}/transcript/{transcript_id}"
     while True:
@@ -91,8 +88,8 @@ def poll_transcription_status(transcript_id):
             return response_data
         elif status == "failed":
             raise RuntimeError("Transcription failed due to an error.")
-        print("Transcription in progress... checking again in 5 seconds.")
-        time.sleep(5)
+        print("Transcription in progress... checking again in 10 seconds.") #Logging the status of the transcription.
+        time.sleep(10)
 
 def process_transcription_data(transcript_data):
     """
@@ -127,6 +124,7 @@ def get_audio_intelligence(file_path, basic=False):
     Main processing function that handles the complete workflow from upload to transcription.
     Supports both basic and advanced transcription modes based on the requirements.
     """
+    #For the purpose of this project, we've decided to use the advanced transcription mode as it provides more features and insights.
     #Upload the audio file and retrieve the URL
     audio_url = upload_audio(file_path)
     

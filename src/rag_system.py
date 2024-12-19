@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import Chroma
-from langchain.retrievers import MultiQueryRetriever
 from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
@@ -16,9 +15,10 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 class TranscriptRAG:
     def __init__(self):
         self.embeddings = OpenAIEmbeddings()
-        # Breaking up the text into smaller pieces (chunks) so it's easier to search through
+        # Breaking up the text into smaller pieces (chunks) so it's easier to search through and answer questions.
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, #Size of each chunk, feel free to modify this
+            chunk_size=2500, #Size of each chunk, feel free to modify this. Make sure it's not too small or too large.
+            #The cost associated with each call to the LLM and the speed of the system depends on this.
             chunk_overlap=200, #Overlap between chunks, this can be modified as well
             length_function=len,
             separators=["\n\n", "\n", " ", ""]
@@ -33,8 +33,7 @@ class TranscriptRAG:
 
     def prepare_documents(self, transcription: str, speakers_data: Dict):
         """
-        Break up our transcript into smaller pieces
-        This helps us find relevant parts later when answering questions
+        Chunking the transrcipt into smaller pieces.
         """
         documents = []
         
@@ -61,8 +60,7 @@ class TranscriptRAG:
 
     def create_vector_store(self, documents):
         """
-     Store our text chunks in a special database (Chroma)
-        This lets us search through them quickly later
+     Store our text chunks in a Chrome vector database. This can be changed to any other vector database like FAISS etc.
         """
         return Chroma.from_documents(
             documents=documents,
@@ -72,34 +70,27 @@ class TranscriptRAG:
 
     def setup_retriever(self, vector_store):
         """
-        Set up the system that will find relevant chunks using mujlti-query
+        Set up the system that will find relevant chunks.
         """
         base_retriever = vector_store.as_retriever(
             search_type="similarity_score_threshold",
             search_kwargs={
                 "k": 4, # Number of chunks to retrieve, modify this as needed
-                "score_threshold": 0.5 #Threshold for similarity score, feel free to change this
+                "score_threshold": 0.5 #Threshold for similarity score, feel free to change this, the higher you make this, the more relevant chunks you'll get.
             }
         )
-
-        # Initialize multi-query retriever
-        multiquery_retriever = MultiQueryRetriever.from_llm(
-            retriever=base_retriever,
-            llm=self.llm
-        )
-        
-        return multiquery_retriever
+        return base_retriever
 
     def setup_qa_chain(self, retriever):
         """
-        Create the question-answering sytsem
+        Create the question answering sytsem
         This combines everything (finding relevant text + generating answers)
         """
         
         # Custom prompt template for better context utilization
         prompt_template = """
         You are an AI assistant analyzing a conversation transcript. Use the following pieces of context to answer the question. 
-        If you don't know the answer, just say that you don't know. Don't try to make up an answer.
+        If you don't know the answer, just say that you don't know. Don't try to make up an answer. 
         
         Context: {context}
         
@@ -112,7 +103,7 @@ class TranscriptRAG:
         2. Provide direct quotes when relevant
         3. Be concise but comprehensive
         4. If the answer requires multiple points, use a numbered list
-        5. Search the web or use external knowledge for background information about a particular topic.
+        5. Search the web or use external knowledge for background information about a particular topic, but make sure to demarcate this as background information clearly!
         6. If no relevant information was found in the transcript, only provide this background information but mention that not relevant information was found in the transcript!
         Answer:"""
 
@@ -121,7 +112,7 @@ class TranscriptRAG:
             input_variables=["context", "chat_history", "question"]
         )
 
-        # Updated memory configuration with output_key
+        # Conversation buffer memory to keep track of the convo histroy
         self.memory = ConversationBufferMemory(
             memory_key="chat_history",
             output_key="answer",

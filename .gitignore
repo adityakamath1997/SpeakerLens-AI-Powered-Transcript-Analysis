@@ -5,4 +5,5 @@ __pycache__/
 *.pyc
 .vscode/
 *.log
-/data/ #ignore the data folder
+raw/
+vectorstore/

@@ -1,5 +1,19 @@
 # Audio Analysis and Speaker Identification Project
 
+## Table of Contents
+- [Introduction](#introduction)
+- [App Demo](#-app-demo)
+- [Business Value & Market Differentiation](#-business-value--market-differentiation)
+- [Tech Stack](#-tech-stack)
+- [RAG Implementation Choice](#-rag-implementation-choice)
+- [Key Features](#-key-features)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Contact](#-contact)
+
+## Introduction
 This project was born out of a real need I experienced during my course curriculum's capstone project meetings. As our team discussions grew longer and more complex, I found myself wishing for a tool that could automatically track who said what and highlight the key points from each speaker. What started as a solution to my own problem - managing meeting notes and tracking speaker contributions - quickly evolved into a comprehensive audio analysis platform that could serve various business needs.
 
 The tool combines my interests in data visualization and audio processing to create meaningful insights from spoken conversations. While it began as a solution for academic meetings, I realized its potential applications in various professional settings - from sales calls to research interviews. I'm excited to continue adding features and improving its capabilities!
