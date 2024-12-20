@@ -4,7 +4,7 @@ Transform audio conversations into actionable insights! SpeakerLens is an intell
 
 That's not all! SpeakerLens also features an AI-powered Q&A system to answer questions about the transcript, taking into account speaker-wise context!
 
-**"But Aditya," I hear you say, "Couldn't I just one of those freely available transcription tools online?"**
+**"But Aditya," I hear you say, "Couldn't I just use one of those freely available transcription tools online?"**
 
 Yes you could, maybe for short audio clips having a single speaker. But what if you have a long recording with multiple speakers? Think of a situation like a sales call, or a court room hearing. A simple transcription tool just isn't going to cut it!
 
@@ -277,6 +277,7 @@ This structure ensures maintainability and makes it easy to add new features or 
    - In the root directory, create a `.env` file and add your API key:
      ```plaintext
      ASSEMBLYAI_API_KEY=your_assemblyai_api_key
+     OPENAI_API_KEY=your_openai_api_key
      ```
 
 5. **Run the application**:
@@ -299,9 +300,9 @@ This structure ensures maintainability and makes it easy to add new features or 
 
    **Note**: A sample meeting audio file with multiple speakers is included in the `samples` folder for testing. You can:
    - Use this sample file to quickly test the app's features
-   - Or upload any MP3 file of your choice (recommended length: 2-15 minutes)
+   - Or upload any MP3 file of your choice (recommended length: 2-15 minutes, but feel free to exceed this! The app has been tested for meetings up to 3 hours in length!)
    
-   **Processing Time**: Depending on the audio length, initial processing may take 1-3 minutes.
+   **Processing Time**: Depending on the audio length, initial processing may take 1-3 minutes. (or longer, if you've chosen a longer recording)
 
 ## 📁 Directory Structure
 
